@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import { errorHandler } from './middlewares/error.middleware.js';
 import authRoutes from "./modules/auth/auth.routes.js";
+import orderRoutes from "./modules/orders/order.routes.js";
 
 const openapiDocument = YAML.load('src/docs/openapi.yaml');
 
@@ -24,6 +25,7 @@ app.get('/health', (_request, response) => {
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/orders', orderRoutes);
 app.use(errorHandler);
 
 export default app;

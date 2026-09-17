@@ -1,5 +1,5 @@
 import type { RequestHandler } from "express";
-import type { ZodType } from "zod";
+import { z, type ZodType } from "zod";
 import { AppError } from "./error.middleware.js";
 
 export const validateBody =
@@ -25,10 +25,21 @@ export const validateBody =
     next();
   };
 
+type RequestSchema = ZodType | {
+  body?: ZodType;
+  params?: ZodType;
+  query?: ZodType;
+};
+
 export const validate =
-  (schema: ZodType): RequestHandler =>
-  (request, _response, next) => {
-    const result = schema.safeParse({
+  (schema: RequestSchema): RequestHandler =>
+  (request, response, next) => {
+    const requestSchema = "safeParse" in schema ? schema : z.object({
+      body: schema.body ?? z.unknown(),
+      params: schema.params ?? z.unknown(),
+      query: schema.query ?? z.unknown(),
+    });
+    const result = requestSchema.safeParse({
       body: request.body,
       params: request.params,
       query: request.query,
@@ -47,6 +58,9 @@ export const validate =
 
     request.body = data.body;
     request.params = data.params;
-    request.query = data.query as typeof request.query;
+    // Express 5 exposes request.query through a read-only getter that may
+    // return a fresh object. Keep transformed query data in response locals
+    // so downstream handlers receive Zod defaults and coercions reliably.
+    response.locals.validatedQuery = data.query;
     next();
   };

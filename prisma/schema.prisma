@@ -39,6 +39,32 @@ model User {
   @@index([email, isActive])
 }
 
+model Order {
+  id             String      @id @default(uuid())
+  tenantId       String
+  customerId     String
+  driverId       String?
+  pickupAddress  String
+  dropoffAddress String
+  status         OrderStatus @default(PENDING)
+  version        Int         @default(1)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime?
+
+  @@index([tenantId, status])
+  @@index([driverId])
+  @@index([createdAt])
+}
+
+enum OrderStatus {
+  PENDING
+  ASSIGNED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
 enum UserRole {
   SUPER_ADMIN
   ORG_MANAGER

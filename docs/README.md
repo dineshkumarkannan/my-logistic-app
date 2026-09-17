@@ -10,11 +10,11 @@ This project is being built in phases for learning, system design understanding,
 - File: [phase-1-foundation-and-local-run.md](phase-1-foundation-and-local-run.md)
 - Focus: Initial project setup, Express server, health endpoint, environment config, Docker basics, TypeScript setup, and local run debugging.
 
-### Phase 2: Authentication and Security Layer
+### Phase 2: Core Order Management System
 
-- Status: Planned
-- File: Planned
-- Focus: Refresh-token rotation, session revocation, RBAC hardening, audit logging, and security tests.
+- Status: Completed
+- File: [phase-2-order-management.md](phase-2-order-management.md)
+- Focus: Order schema design, keyset pagination, optimistic locking, order workflow, RBAC, and local verification.
 
 ## How to use this documentation
 
