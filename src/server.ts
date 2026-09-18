@@ -5,6 +5,10 @@ import { prisma } from "./config/database.js";
 import { env } from "./config/environment.js";
 import { connectRedis, redisClient } from "./config/redis.js";
 import { TrackingGateway } from "./modules/tracking/gateways/tracking.gateway.js";
+import {
+  bootstrapNotificationsModule,
+  shutdownNotificationsModule,
+} from "./modules/notifications/index.js";
 
 const PORT = env.PORT;
 const server = http.createServer(app);
@@ -21,6 +25,8 @@ const startServer = async (): Promise<void> => {
   new TrackingGateway(server);
   console.log("Socket.io telemetry gateway mounted.");
 
+  bootstrapNotificationsModule();
+
   server.listen(PORT, "0.0.0.0", () => {
     console.log(`Logistics API listening on http://localhost:${PORT}/health`);
   });
@@ -28,6 +34,8 @@ const startServer = async (): Promise<void> => {
 
 const shutdown = async (signal: string): Promise<void> => {
   console.log(`${signal} received. Shutting down gracefully.`);
+
+  await shutdownNotificationsModule();
 
   if (redisClient.isOpen) {
     await redisClient.quit();
@@ -44,6 +52,8 @@ process.on("SIGTERM", () => void shutdown("SIGTERM"));
 
 startServer().catch(async (error: unknown) => {
   console.error("Critical system initialization failure", error);
+
+  await shutdownNotificationsModule();
 
   if (redisClient.isOpen) {
     await redisClient.quit();

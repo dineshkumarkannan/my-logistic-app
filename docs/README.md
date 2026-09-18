@@ -22,6 +22,12 @@ This project is being built in phases for learning, system design understanding,
 - File: [phase-3-high-velocity-telemetry.md](phase-3-high-velocity-telemetry.md)
 - Focus: Redis hot-tier locations, MongoDB route history, Socket.io telemetry, tenant-scoped rooms, and live verification.
 
+### Phase 4: Event-Driven Enterprise Notification Engine
+
+- Status: Completed
+- File: [phase-4-event-driven-notifications.md](phase-4-event-driven-notifications.md)
+- Focus: Native events, BullMQ/Redis jobs, exponential retries, background workers, and asynchronous notification delivery.
+
 ## How to use this documentation
 
 - Use each phase file as a learning log and implementation record.

@@ -1,5 +1,6 @@
 import { AppError } from "../../../middlewares/error.middleware.js";
 import { OrderStatus } from "@prisma/client";
+import { globalEventBus } from "../../../config/eventBus.js";
 import type { AssignDriverInput, CreateOrderInput, GetOrdersQuery } from "../dtos/order.dto.js";
 import { OrderRepository } from "../repositories/order.repository.js";
 
@@ -62,6 +63,14 @@ export class OrderService {
         409,
       );
     }
+
+    globalEventBus.emit("order.status.updated", {
+      tenantId: updatedOrder.tenantId,
+      orderId: updatedOrder.id,
+      status: updatedOrder.status,
+      driverId: updatedOrder.driverId ?? undefined,
+      customerId: updatedOrder.customerId,
+    });
 
     return updatedOrder;
   }
