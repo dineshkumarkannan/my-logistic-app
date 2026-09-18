@@ -10,6 +10,7 @@ export interface NotificationJobData {
   title: string;
   body: string;
   channel: NotificationChannel;
+  correlationId?: string;
 }
 
 export const notificationQueue = new Queue<NotificationJobData>(

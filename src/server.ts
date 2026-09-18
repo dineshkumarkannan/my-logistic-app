@@ -9,6 +9,7 @@ import {
   bootstrapNotificationsModule,
   shutdownNotificationsModule,
 } from "./modules/notifications/index.js";
+import { logger } from "./utils/logger.js";
 
 const PORT = env.PORT;
 const server = http.createServer(app);
@@ -16,24 +17,24 @@ const server = http.createServer(app);
 const startServer = async (): Promise<void> => {
   await connectRedis();
   await prisma.$connect();
-  console.log("PostgreSQL transactional storage connected.");
+  logger.info("PostgreSQL transactional storage connected.");
 
   mongoose.set("strictQuery", true);
   await mongoose.connect(env.MONGODB_URI);
-  console.log("MongoDB tracking history connected.");
+  logger.info("MongoDB tracking history connected.");
 
   new TrackingGateway(server);
-  console.log("Socket.io telemetry gateway mounted.");
+  logger.info("Socket.io telemetry gateway mounted.");
 
   bootstrapNotificationsModule();
 
   server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Logistics API listening on http://localhost:${PORT}/health`);
+    logger.info({ port: PORT }, "Logistics API listening.");
   });
 };
 
 const shutdown = async (signal: string): Promise<void> => {
-  console.log(`${signal} received. Shutting down gracefully.`);
+  logger.info({ signal }, "Shutdown signal received.");
 
   await shutdownNotificationsModule();
 
@@ -51,7 +52,7 @@ process.on("SIGINT", () => void shutdown("SIGINT"));
 process.on("SIGTERM", () => void shutdown("SIGTERM"));
 
 startServer().catch(async (error: unknown) => {
-  console.error("Critical system initialization failure", error);
+  logger.fatal({ err: error }, "Critical system initialization failure.");
 
   await shutdownNotificationsModule();
 

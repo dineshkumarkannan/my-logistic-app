@@ -2,6 +2,8 @@ import {
   globalEventBus,
   type OrderStatusUpdatedEvent,
 } from "../../../config/eventBus.js";
+import { getCorrelationId } from "../../../middlewares/trace.middleware.js";
+import { logger } from "../../../utils/logger.js";
 import {
   NotificationQueueService,
   type NotificationJobData,
@@ -13,8 +15,9 @@ let removeListener: (() => void) | undefined;
 const enqueueOrderNotifications = async (
   payload: OrderStatusUpdatedEvent,
 ): Promise<void> => {
-  console.log(
-    `Notification subsystem intercepted state change for order ${payload.orderId}.`,
+  logger.info(
+    { orderId: payload.orderId, status: payload.status },
+    "Notification subsystem intercepted order state change.",
   );
 
   const tasks: Array<{
@@ -28,6 +31,7 @@ const enqueueOrderNotifications = async (
         title: "Package Delivery Update",
         body: `Your logistics order status has transitioned to: ${payload.status.replaceAll("_", " ")}.`,
         channel: "EMAIL",
+        correlationId: getCorrelationId(),
       },
     },
   ];
@@ -40,6 +44,7 @@ const enqueueOrderNotifications = async (
         title: "New Delivery Run Assigned",
         body: "A new high-priority logistics route has been allocated to your profile dashboard.",
         channel: "PUSH",
+        correlationId: getCorrelationId(),
       },
     });
   }
@@ -48,8 +53,9 @@ const enqueueOrderNotifications = async (
     tasks.map((task) => queueService.dispatchNotificationTask(task.name, task.data)),
   );
 
-  console.log(
-    `Queued ${tasks.length} notification task(s) for order ${payload.orderId}.`,
+  logger.info(
+    { orderId: payload.orderId, jobCount: tasks.length },
+    "Notification tasks queued.",
   );
 };
 
@@ -62,9 +68,9 @@ export const initOrderEventsListener = (): void => {
     // EventEmitter does not await async listeners. This deliberately keeps the
     // order request independent from Redis/BullMQ availability.
     void enqueueOrderNotifications(payload).catch((error: unknown) => {
-      console.error(
-        `Notification enqueue failed for order ${payload.orderId}.`,
-        error,
+      logger.error(
+        { err: error, orderId: payload.orderId },
+        "Notification enqueue failed.",
       );
     });
   };

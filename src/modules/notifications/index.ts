@@ -3,13 +3,14 @@ import { initOrderEventsListener, shutdownOrderEventsListener } from "./listener
 import { startNotificationWorker } from "./jobs/notification.processor.js";
 import { closeNotificationQueue } from "./services/notification.queue.js";
 import type { NotificationJobData } from "./services/notification.queue.js";
+import { logger } from "../../utils/logger.js";
 
 let notificationWorker: Worker<NotificationJobData> | undefined;
 
 export const bootstrapNotificationsModule = (): void => {
   initOrderEventsListener();
   notificationWorker ??= startNotificationWorker();
-  console.log("Event-driven notification queue and worker online.");
+  logger.info("Event-driven notification queue and worker online.");
 };
 
 export const shutdownNotificationsModule = async (): Promise<void> => {

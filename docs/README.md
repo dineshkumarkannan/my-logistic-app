@@ -28,6 +28,12 @@ This project is being built in phases for learning, system design understanding,
 - File: [phase-4-event-driven-notifications.md](phase-4-event-driven-notifications.md)
 - Focus: Native events, BullMQ/Redis jobs, exponential retries, background workers, and asynchronous notification delivery.
 
+### Phase 5: Production DevOps, Observability, and Microservices Blueprint
+
+- Status: Completed
+- File: [MICROSERVICES_RFC.md](../MICROSERVICES_RFC.md)
+- Focus: Correlation IDs, structured logs, Prometheus metrics, production Dockerization, and domain extraction strategy.
+
 ## How to use this documentation
 
 - Use each phase file as a learning log and implementation record.

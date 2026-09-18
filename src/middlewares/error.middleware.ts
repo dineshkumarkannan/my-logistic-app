@@ -1,5 +1,6 @@
 import type { ErrorRequestHandler } from "express";
-import { success } from "zod";
+import { getCorrelationId } from "./trace.middleware.js";
+import { logger } from "../utils/logger.js";
 
 export class AppError extends Error {
     public readonly isOperational = true;
@@ -20,7 +21,15 @@ export const errorHandler: ErrorRequestHandler = (error, request, response, _nex
     const isOperational = error instanceof AppError ? error.isOperational : false;
     const message = error instanceof Error ? error.message : 'Internal server error';
 
-    console.error(`[ERROR LOG] [${request.method}] ${request.path} ->`, error);
+    logger.error({
+        correlationId: getCorrelationId(),
+        method: request.method,
+        path: request.path,
+        errorMessage: message,
+        stack: process.env.NODE_ENV === 'development' && error instanceof Error
+            ? error.stack
+            : undefined,
+    }, 'Operational exception intercepted');
 
     if(process.env.NODE_ENV === 'development') {
         response.status(statusCode).json({

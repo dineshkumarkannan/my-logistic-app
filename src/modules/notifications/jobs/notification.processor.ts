@@ -1,5 +1,6 @@
 import { Job, Worker } from "bullmq";
 import { env } from "../../../config/environment.js";
+import { logger } from "../../../utils/logger.js";
 import {
   NOTIFICATION_QUEUE_NAME,
   type NotificationJobData,
@@ -21,8 +22,14 @@ export const startNotificationWorker = (): Worker<NotificationJobData> => {
     async (job: Job<NotificationJobData>) => {
       const { recipientId, title, body, channel } = job.data;
 
-      console.log(
-        `[WORKER] Processing ${job.name} (ID: ${job.id}) via ${channel}.`,
+      logger.info(
+        {
+          correlationId: job.data.correlationId,
+          jobName: job.name,
+          jobId: job.id,
+          channel,
+        },
+        "Notification job processing.",
       );
 
       // Keep the mock variables visible for the future SendGrid/Twilio/FCM
@@ -31,8 +38,9 @@ export const startNotificationWorker = (): Worker<NotificationJobData> => {
       void body;
       await simulateExternalNotification();
 
-      console.log(
-        `[WORKER] Notification delivered to ${recipientId} via ${channel}.`,
+      logger.info(
+        { correlationId: job.data.correlationId, recipientId, channel },
+        "Notification delivered.",
       );
     },
     {
@@ -42,13 +50,18 @@ export const startNotificationWorker = (): Worker<NotificationJobData> => {
   );
 
   worker.on("failed", (job, error) => {
-    console.error(
-      `[WORKER FAILED] Job ID: ${job?.id ?? "unknown"} failed: ${error.message}. BullMQ will retry automatically when attempts remain.`,
+    logger.error(
+      {
+        err: error,
+        correlationId: job?.data.correlationId,
+        jobId: job?.id,
+      },
+      "Notification job failed; BullMQ will retry when attempts remain.",
     );
   });
 
   worker.on("error", (error) => {
-    console.error("[WORKER ERROR] Notification worker connection error.", error);
+    logger.error({ err: error }, "Notification worker connection error.");
   });
 
   return worker;

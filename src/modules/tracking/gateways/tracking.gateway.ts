@@ -6,6 +6,7 @@ import { env } from "../../../config/environment.js";
 import { redisClient } from "../../../config/redis.js";
 import { UserRole } from "@prisma/client";
 import { TrackingService } from "../services/tracking.service.js";
+import { logger } from "../../../utils/logger.js";
 
 type SocketUser = {
   userId: string;
@@ -84,8 +85,9 @@ export class TrackingGateway {
     this.io.on("connection", (rawSocket) => {
       const socket = rawSocket as TrackingSocket;
       const user = socket.data.user;
-      console.log(
-        `WebSocket tracking channel active for ${user.userId} under tenant ${user.tenantId}`,
+      logger.info(
+        { userId: user.userId, tenantId: user.tenantId },
+        "WebSocket tracking channel active.",
       );
 
       socket.on("join:order_track", (orderId: string) => {
@@ -99,8 +101,9 @@ export class TrackingGateway {
         const result = driverPingSchema.safeParse(payload);
         if (!result.success) return;
 
+        const { orderId, lat, lng } = result.data;
+
         try {
-          const { orderId, lat, lng } = result.data;
           await this.trackingService.processDriverPing(
             user.tenantId,
             user.userId,
@@ -118,7 +121,7 @@ export class TrackingGateway {
               timestamp: new Date(),
             });
         } catch (error: unknown) {
-          console.error("Driver telemetry processing failed", error);
+          logger.error({ err: error, orderId }, "Driver telemetry processing failed.");
           socket.emit("tracking:error", {
             message: "Telemetry could not be recorded.",
           });
@@ -126,7 +129,7 @@ export class TrackingGateway {
       });
 
       socket.on("disconnect", () => {
-        console.log(`Tracking channel closed for user ${user.userId}`);
+        logger.info({ userId: user.userId }, "Tracking channel closed.");
       });
     });
   }
