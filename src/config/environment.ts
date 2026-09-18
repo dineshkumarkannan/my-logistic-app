@@ -6,6 +6,7 @@ const environmentSchema = z.object({
     PORT: z.coerce.number().int().positive().default(3000),
     DATABASE_URL: z.string().min(1),
     REDIS_URL: z.string().url(),
+    MONGODB_URI: z.string().url(),
     JWT_ACCESS_SECRET: z.string().min(32),
     JWT_REFRESH_SECRET: z.string().min(32),
     JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),

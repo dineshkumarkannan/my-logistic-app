@@ -17,6 +17,7 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@types/mongoose": "^5.11.96",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -25,7 +26,9 @@
     "express-rate-limit": "^8.7.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.10.1",
     "redis": "^6.2.1",
+    "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0",
     "zod": "^4.6.5"

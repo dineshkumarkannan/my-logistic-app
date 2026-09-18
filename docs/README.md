@@ -16,6 +16,12 @@ This project is being built in phases for learning, system design understanding,
 - File: [phase-2-order-management.md](phase-2-order-management.md)
 - Focus: Order schema design, keyset pagination, optimistic locking, order workflow, RBAC, and local verification.
 
+### Phase 3: High-Velocity Telemetry and Real-Time Tracking
+
+- Status: Completed
+- File: [phase-3-high-velocity-telemetry.md](phase-3-high-velocity-telemetry.md)
+- Focus: Redis hot-tier locations, MongoDB route history, Socket.io telemetry, tenant-scoped rooms, and live verification.
+
 ## How to use this documentation
 
 - Use each phase file as a learning log and implementation record.
